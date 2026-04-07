@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inventree_app/core/network/dio_client.dart';
-import 'package:inventree_app/screens/main_screen.dart';
-import 'package:inventree_app/screens/settings_screen.dart';
+import 'package:inventree_app/features/dashboard/presentation/screens/main_screen.dart';
+import 'package:inventree_app/features/settings/presentation/providers/settings_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [
-        settingsNotifierProvider.overrideWithValue(SettingsNotifier(prefs)),
+        settingsNotifierProvider.overrideWith((ref) => SettingsNotifier(prefs)),
       ],
       child: const MyApp(),
     ),

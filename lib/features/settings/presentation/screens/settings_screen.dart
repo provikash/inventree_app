@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventree_app/core/network/dio_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../providers/settings_provider.dart';
+
 final settingsProvider = Provider<SettingsNotifier>(
   (ref) => throw UnimplementedError(),
 );
@@ -99,9 +101,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 }
 
-final settingsNotifierProvider = ChangeNotifierProvider<SettingsNotifier>((
-  ref,
-) {
-  // This will be overridden in main.dart
-  throw UnimplementedError();
-});
+//
+// final settingsNotifierProvider = ChangeNotifierProvider<SettingsNotifier>((
+//   ref,
+// ) {
+//   // This will be overridden in main.dart
+//   throw UnimplementedError();
+// });

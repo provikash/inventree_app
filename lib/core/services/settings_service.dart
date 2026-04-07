@@ -2,7 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService {
   static const String _baseUrlKey = 'base_url';
-  static const String _tokenKey = 'auth_token';
+  static const String _tokenKey =
+      "inv-264af3e031dd43b91f7f93b6152a3e0f7dec2554-20260406";
 
   final SharedPreferences _prefs;
 

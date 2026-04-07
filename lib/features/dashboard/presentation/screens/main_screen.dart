@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventree_app/features/dashboard/presentation/providers/dashboard_provider.dart';
-import 'package:inventree_app/screens/parts_screen.dart';
-import 'package:inventree_app/screens/stock_screen.dart';
-import 'package:inventree_app/screens/settings_screen.dart';
+import 'package:inventree_app/features/parts/presentation/screens/parts_screen.dart';
+import 'package:inventree_app/features/stock/presentation/screens/stock_screen.dart';
+import 'package:inventree_app/features/settings/presentation/screens/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
