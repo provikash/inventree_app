@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:inventree_app/core/network/dio_client.dart';
 import 'package:inventree_app/features/dashboard/presentation/screens/main_screen.dart';
 import 'package:inventree_app/features/settings/presentation/providers/settings_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive for Caching
+  await Hive.initFlutter();
+  await Hive.openBox('parts_cache');
+  await Hive.openBox('stock_cache');
+
   final prefs = await SharedPreferences.getInstance();
 
   // Initialize Dio with saved settings
-  final baseUrl = prefs.getString('base_url') ?? 'http://localhost:8000/api/';
+  final baseUrl = prefs.getString('base_url') ?? 'http://127.0.0.1:8000/api/';
   final token = prefs.getString('auth_token') ?? '';
 
   DioClient.setBaseUrl(baseUrl);
@@ -28,14 +35,17 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsNotifierProvider);
+
     return MaterialApp(
       title: 'InvenTree Desktop',
       debugShowCheckedModeBanner: false,
+      themeMode: settings.themeMode,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

@@ -17,6 +17,7 @@ class DioClient {
 
   static void setToken(String token) {
     _dio.options.headers["Authorization"] = "Token $token";
+    print(_dio.options.headers);
   }
 
   static void setBaseUrl(String url) {

@@ -7,12 +7,31 @@ class SettingsNotifier extends ChangeNotifier {
   final SharedPreferences prefs;
   SettingsNotifier(this.prefs);
 
+  // --- Theme Management ---
+  ThemeMode get themeMode {
+    final mode = prefs.getString('theme_mode') ?? 'system';
+    switch (mode) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    await prefs.setString('theme_mode', mode.name);
+    notifyListeners();
+  }
+
+  // --- Auth & API Settings ---
   String get baseUrl =>
-      prefs.getString('base_url') ?? 'http://localhost:8000/api/';
+      prefs.getString('base_url') ?? 'http://127.0.0.1:8000/api/';
   String get token => prefs.getString('auth_token') ?? '';
+  bool get isAuthenticated => token.isNotEmpty && baseUrl.isNotEmpty;
 
   Future<void> saveSettings(String url, String token) async {
-    // Ensure URL ends with a slash for Dio
     String formattedUrl = url.endsWith('/') ? url : '$url/';
     if (!formattedUrl.endsWith('api/')) {
       formattedUrl = formattedUrl.endsWith('/')
@@ -23,16 +42,19 @@ class SettingsNotifier extends ChangeNotifier {
     await prefs.setString('base_url', formattedUrl);
     await prefs.setString('auth_token', token);
 
-    // Update the live Dio client
     DioClient.setBaseUrl(formattedUrl);
     DioClient.setToken(token);
 
     notifyListeners();
   }
+
+  Future<void> logout() async {
+    await prefs.remove('auth_token');
+    DioClient.setToken('');
+    notifyListeners();
+  }
 }
 
-// This provider is globally accessible but must be overridden in main.dart
-// with the actual SharedPreferences instance.
 final settingsNotifierProvider = ChangeNotifierProvider<SettingsNotifier>((
   ref,
 ) {
