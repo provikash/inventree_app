@@ -1,32 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inventree_app/core/network/dio_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../providers/settings_provider.dart';
-
-final settingsProvider = Provider<SettingsNotifier>(
-  (ref) => throw UnimplementedError(),
-);
-
-class SettingsNotifier extends ChangeNotifier {
-  final SharedPreferences prefs;
-  SettingsNotifier(this.prefs);
-
-  String get baseUrl =>
-      prefs.getString('base_url') ?? 'http://localhost:8000/api/';
-  String get token => prefs.getString('auth_token') ?? '';
-
-  Future<void> saveSettings(String url, String token) async {
-    await prefs.setString('base_url', url);
-    await prefs.setString('auth_token', token);
-
-    DioClient.setBaseUrl(url);
-    DioClient.setToken(token);
-
-    notifyListeners();
-  }
-}
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -100,11 +74,3 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
-
-//
-// final settingsNotifierProvider = ChangeNotifierProvider<SettingsNotifier>((
-//   ref,
-// ) {
-//   // This will be overridden in main.dart
-//   throw UnimplementedError();
-// });
