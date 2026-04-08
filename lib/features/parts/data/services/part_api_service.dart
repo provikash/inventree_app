@@ -25,4 +25,21 @@ class PartApiService {
       rethrow;
     }
   }
+
+  Future<PartModel> createPart(Map<String, dynamic> data) async {
+    try {
+      final response = await DioClient.dio.post("part/", data: data);
+      return PartModel.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deletePart(int pk) async {
+    try {
+      await DioClient.dio.delete("part/$pk/");
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

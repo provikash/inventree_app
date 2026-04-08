@@ -9,4 +9,9 @@ class PartRepository {
   Future<List<PartModel>> getParts() {
     return _apiService.getParts();
   }
+
+  Future<PartModel> createPart(Map<String, dynamic> data) =>
+      _apiService.createPart(data);
+
+  Future<void> deletePart(int pk) => _apiService.deletePart(pk);
 }

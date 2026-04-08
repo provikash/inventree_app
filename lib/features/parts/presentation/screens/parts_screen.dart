@@ -46,6 +46,76 @@ class PartsScreen extends ConsumerWidget {
     }
   }
 
+  void _showAddPartDialog(BuildContext context, WidgetRef ref) {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final ipnController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add New Part'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Part Name *'),
+            ),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
+            TextField(
+              controller: ipnController,
+              decoration: const InputDecoration(labelText: 'IPN'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Name is required')),
+                );
+                return;
+              }
+
+              try {
+                await ref.read(partRepositoryProvider).createPart({
+                  'name': nameController.text,
+                  'description': descriptionController.text,
+                  'IPN': ipnController.text,
+                  // Note: InvenTree often requires a category PK.
+                  // For simplicity in this demo, we assume a default or optional category.
+                });
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ref.invalidate(partsProvider);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Part created successfully')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to create part: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final partsAsync = ref.watch(partsProvider);
@@ -86,19 +156,71 @@ class PartsScreen extends ConsumerWidget {
                   : const Icon(Icons.category, size: 40),
               title: Text(part.name),
               subtitle: Text(part.description),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'Stock: ${part.stock ?? 0}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Stock: ${part.stock ?? 0}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      if (part.categoryName != null)
+                        Text(
+                          part.categoryName!,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                    ],
                   ),
-                  if (part.categoryName != null)
-                    Text(
-                      part.categoryName!,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Delete Part?'),
+                          content: Text(
+                            'Are you sure you want to delete ${part.name}?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true) {
+                        try {
+                          await ref
+                              .read(partRepositoryProvider)
+                              .deletePart(part.pk);
+                          ref.invalidate(partsProvider);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Part deleted')),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to delete: $e')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                  ),
                 ],
               ),
             );
@@ -120,6 +242,11 @@ class PartsScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddPartDialog(context, ref),
+        tooltip: 'Add Part',
+        child: const Icon(Icons.add),
       ),
     );
   }

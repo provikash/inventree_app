@@ -28,8 +28,6 @@ class StockApiService {
 
   /// Adjusts the stock level of a specific item
   Future<void> adjustStock(int itemPk, double quantity, String action) async {
-    // InvenTree API endpoint for stock adjustment
-    // action can be 'add', 'remove', 'count'
     final endpoint = "stock/$itemPk/adjust/";
     await DioClient.dio.post(
       endpoint,
@@ -39,5 +37,13 @@ class StockApiService {
         "notes": "Adjusted via Flutter Desktop Client",
       },
     );
+  }
+
+  Future<void> deleteStockItem(int pk) async {
+    await DioClient.dio.delete("stock/$pk/");
+  }
+
+  Future<void> createStockItem(Map<String, dynamic> data) async {
+    await DioClient.dio.post("stock/", data: data);
   }
 }
